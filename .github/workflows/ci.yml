@@ -1,0 +1,45 @@
+name: ci
+on: push
+jobs:
+  test-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10.7"
+      - name: Install Poetry
+        run: |
+          make install-poetry
+      - name: Poetry Env Caching
+        id: poetry-cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/pypoetry
+          key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}-${{ hashFiles('pyproject.toml') }}
+      - name: Install dev dependencies
+        if: steps.poetry-cache.outputs.cache-hit != 'true'
+        run: |
+          make install-py-dev-req
+      - name: Lint & Test
+        run: poetry run make test-lint-all
+  pypkg-build-install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10.7"
+      - name: Install Poetry
+        run: |
+          make install-poetry
+      - name: Build & Install
+        run: |
+          poetry build
+          pip install dist/*.whl
+          python3 -c "import powr; print(powr.__name__)"
