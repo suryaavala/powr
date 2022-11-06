@@ -39,6 +39,7 @@ bandit = { version = "^1.7.4", optional = true }
 
 # dev packages
 pre-commit = { version = "^2.20.0", optional = true }
+dvc = "^2.33.2"
 
 [tool.poetry.extras]
 docs = ["mkdocs", "mkdocstrings"]
@@ -49,3 +50,32 @@ dev = ["pre-commit", "mkdocs", "mkdocstrings", "pytest", "pytest-cov", "great-ex
 [build-system]
 requires = ["poetry-core>=1.2.0"]
 build-backend = "poetry.core.masonry.api"
+
+# isort config
+[tool.isort]
+profile = "black"
+
+# pytest config
+[tool.pytest.ini_options]
+testpaths = ["tests/"]
+python_files = "test_*.py"
+addopts = ["-vvv", "--strict-markers", "--disable-pytest-warnings", "--color=yes", "--capture=tee-sys", "--cov-fail-under=100", "--cov-report=term-missing", "--cov=powr"]
+markers = [
+    "training: tests that involve training",
+]
+
+# pytest coverage config
+[tool.coverage.run]
+source = ["powr"]
+omit = ["*/__init__.py", "tests/*"]
+# omit = ["app/gunicorn.py"]
+
+# mypy config
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = ["matplotlib", "numpy", "pandas", "seaborn", "tensorflow"]
+ignore_missing_imports = true

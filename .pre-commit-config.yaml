@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0 # Use the ref you want to point at
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+        exclude: "dvc_remote/"
+      - id: debug-statements
+      - id: name-tests-test
+        args: ["--django"]
+      - id: detect-aws-credentials
+        args: ["--allow-missing-credentials"]
+      - id: check-yaml
+      - id: check-ast
+      - id: check-json
+      - id: check-merge-conflict
+      - id: detect-aws-credentials
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      - id: dvc-data-sync
+        name: dvc-data-sync
+        language: system
+        pass_filenames: false
+        entry: make dvc-data-sync
+        files: "data/.*"
+      - id: test-lint-all
+        name: test-lint-all
+        language: system
+        pass_filenames: false
+        entry: poetry run make test-lint-all
+        files: ".*\\.py$|.*\\.pyi$"
+      - id: clean
+        name: clean
+        language: system
+        pass_filenames: false
+        entry: poetry run make clean
