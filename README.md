@@ -10,7 +10,7 @@ Throughout this exercise you will:
 * Visualisation and results of your model
 
 ### Submission:
-You should use python as the authoring language here and your answer should be submitted as a git repository with a notebook that can be run offline, please include all requirements via either poetry or a requirements.txt to make it as easy as possible for us to verify your solution. Include in your notebook any supporting information that can help identify how you've approached the problem, this will be used to drive discussion in the technical interview process should you be successful. 
+You should use python as the authoring language here and your answer should be submitted as a git repository with a notebook that can be run offline, please include all requirements via either poetry or a requirements.txt to make it as easy as possible for us to verify your solution. Include in your notebook any supporting information that can help identify how you've approached the problem, this will be used to drive discussion in the technical interview process should you be successful.
 
 _Note: Please do not share your work on github or any other publicly accessible space. We'd like to ensure that the test remains fair for all applicants_
 <br />

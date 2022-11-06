@@ -1,0 +1,4 @@
+[core]
+    remote = redundant
+['remote "redundant"']
+    url = ../dvc_remote/redundant
