@@ -13,11 +13,13 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "==3.10.7"
+dvc = "^2.33.2"
 matplotlib = "^3.6.1"
 numpy = "^1.23.4"
 pandas = "^1.5.1"
 seaborn = "^0.12.0"
 tensorflow = "^2.10.0"
+typer = "^0.7.0"
 
 # NOTE: optional dependencies for extras
 
@@ -39,7 +41,6 @@ bandit = { version = "^1.7.4", optional = true }
 
 # dev packages
 pre-commit = { version = "^2.20.0", optional = true }
-dvc = "^2.33.2"
 
 [tool.poetry.extras]
 docs = ["mkdocs", "mkdocstrings"]
@@ -59,7 +60,7 @@ profile = "black"
 [tool.pytest.ini_options]
 testpaths = ["tests/"]
 python_files = "test_*.py"
-addopts = ["-vvv", "--strict-markers", "--disable-pytest-warnings", "--color=yes", "--capture=tee-sys", "--cov-fail-under=100", "--cov-report=term-missing", "--cov=powr"]
+addopts = ["-vvv", "--strict-markers", "--disable-pytest-warnings", "--color=yes", "--capture=tee-sys", "--cov-fail-under=0", "--cov-report=term-missing", "--cov=powr"]
 markers = [
     "training: tests that involve training",
 ]
@@ -67,7 +68,7 @@ markers = [
 # pytest coverage config
 [tool.coverage.run]
 source = ["powr"]
-omit = ["*/__init__.py", "tests/*"]
+omit = ["*/__init__.py", "tests/*", "powr/main.py"]
 # omit = ["app/gunicorn.py"]
 
 # mypy config

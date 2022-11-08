@@ -95,4 +95,3 @@ models/*
 
 # ignoring /tmp/
 /tmp/
-/data

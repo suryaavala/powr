@@ -94,11 +94,45 @@ test-lint-all: lint-all test
 
 ####### DVC #######
 ## Add data to dvc & sync with remote
-dvc-data-sync:
-	dvc add data
+dvc-sync:
 	dvc push
-	dvc status -r redundant -q data
+	dvc status -r redundant -q
+	dvc status -q
 
+
+####### Dev Help #######
+.PHONY: test-watch
+## watch relevant directories for tests and run tests when changes are detected
+test-watch:
+	exclude_pattern=".*"
+	include_pattern=".*\.py$$"
+	fswatch -or1 -e "$exclude_pattern" -i "$include_pattern" --event=Updated powr tests | xargs -n1 -I{} make test
+
+.PHONY: data-clean
+## clean up data
+elt-data:
+	python3 main.py elt-data
+
+.PHONY: preprocess-data
+## preprocess data
+preprocess-data:
+	python3 main.py preprocess-data
+
+.PHONY: generate-dataset
+## generate dataset
+generate-dataset:
+	python3 main.py generate-dataset
+
+.PHONY: show-pipeline
+## show pipeline
+show-pipeline:
+	dvc dag
+
+.PHONY: run-pipeline
+## run pipeline
+run-pipeline: show-pipeline
+	dvc repro
+	dvc push
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
