@@ -1,0 +1,20 @@
+schema: '2.0'
+stages:
+  prepare-data:
+    cmd: make elt-data
+    deps:
+    - path: data/raw
+      md5: 4382c1d977abdb84b8ee8f654c0dd232.dir
+      size: 13586309
+      nfiles: 8
+    - path: main.py
+      md5: 4b5566b1e6a2a6dd968a22832ee17bb7
+      size: 765
+    - path: powr
+      md5: 59c0398a06ebb4426642041e966e7d26.dir
+      size: 8112
+      nfiles: 9
+    outs:
+    - path: data/clean/data.csv
+      md5: 4cdbe90e9b59751014fb4addd57695b4
+      size: 3950568

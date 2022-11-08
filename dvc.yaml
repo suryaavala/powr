@@ -1,0 +1,9 @@
+stages:
+  prepare-data:
+    cmd: make elt-data
+    deps:
+      - powr
+      - main.py
+      - data/raw
+    outs:
+      - data/clean/data.csv

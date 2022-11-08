@@ -19,7 +19,7 @@ def elt_data():
     logger.info("Loaded & merged data!")
 
     # Clean
-    cleaned_data_path = Path(config.CLEAN_DATA_DIR, "cleanded_data.csv")
+    cleaned_data_path = Path(config.CLEAN_DATA_DIR, "data.csv")
     df_clean = data.clean_df(df_raw, datatime_str_fmts=config.EXPECTED_TIME_FMTS)
     df_clean.to_csv(cleaned_data_path, index=False)
     logger.info("Cleaned data!")
