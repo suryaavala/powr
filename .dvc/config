@@ -1,4 +1,5 @@
 [core]
     remote = redundant
+    autostage = true
 ['remote "redundant"']
     url = ../dvc_remote/redundant
