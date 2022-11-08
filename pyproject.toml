@@ -19,6 +19,7 @@ numpy = "^1.23.4"
 pandas = "^1.5.1"
 seaborn = "^0.12.0"
 tensorflow = "^2.10.0"
+typer = "^0.7.0"
 
 # NOTE: optional dependencies for extras
 
@@ -67,7 +68,7 @@ markers = [
 # pytest coverage config
 [tool.coverage.run]
 source = ["powr"]
-omit = ["*/__init__.py", "tests/*"]
+omit = ["*/__init__.py", "tests/*", "powr/main.py"]
 # omit = ["app/gunicorn.py"]
 
 # mypy config

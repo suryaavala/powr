@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
 
-from powr import data
 from config import config
+from powr import data
 
 
 def test_load_merge_raw_data(tmp_path):

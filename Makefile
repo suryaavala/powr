@@ -107,6 +107,9 @@ test-watch:
 	include_pattern=".*\.py$$"
 	fswatch -or1 -e "$exclude_pattern" -i "$include_pattern" --event=Updated powr tests | xargs -n1 -I{} make test
 
+.PHONY: data-clean
+elt-data:
+	python3 main.py elt-data
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
