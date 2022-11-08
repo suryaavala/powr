@@ -11,10 +11,10 @@ stages:
       md5: 4b5566b1e6a2a6dd968a22832ee17bb7
       size: 765
     - path: powr
-      md5: 59c0398a06ebb4426642041e966e7d26.dir
-      size: 8112
+      md5: 4e536f484f9f143f3463ae08d073ba68.dir
+      size: 8515
       nfiles: 9
     outs:
     - path: data/clean/data.csv
-      md5: 4cdbe90e9b59751014fb4addd57695b4
-      size: 3950568
+      md5: eb8ba10f23fe9a05f14d1bf580999a8c
+      size: 2742910

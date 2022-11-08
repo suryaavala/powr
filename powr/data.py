@@ -56,15 +56,23 @@ def clean_df(
 
     df = raw_dataframe.copy(deep=True)
 
+    # drop rows with null values
     df.dropna(how="any", inplace=True)
 
+    # convert date column to datetime
     # pretty slow but okay for a first pass, can vectorise/optimise later
     df["CREATED_AT"] = df["CREATED_AT"].apply(
         lambda x: _str_to_datetime(x, datatime_str_fmts)
     )
 
+    # drop duplicate rows & rows where power consumption is negative
     df.drop_duplicates(keep="first", ignore_index=True, inplace=True)
     df.drop(df[df["VALUE"] < 0].index, inplace=True)
+
+    # drop columns that are not unique across rows
+    nunique = df.nunique()
+    cols_to_drop = nunique[nunique == 1].index
+    df.drop(cols_to_drop, axis=1, inplace=True)
 
     df.sort_values(by=["CREATED_AT"], inplace=True, ignore_index=True)
     df.reset_index(drop=True, inplace=True)

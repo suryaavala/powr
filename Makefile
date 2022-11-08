@@ -96,7 +96,8 @@ test-lint-all: lint-all test
 ## Add data to dvc & sync with remote
 dvc-sync:
 	dvc push
-	dvc status -r redundant -q data
+	dvc status -r redundant -q
+	dvc status -q
 
 
 ####### Dev Help #######
@@ -119,7 +120,7 @@ show-pipeline:
 
 .PHONY: run-pipeline
 ## run pipeline
-run-pipeline:
+run-pipeline: show-pipeline
 	dvc repro
 #################################################################################
 # PROJECT RULES                                                                 #
