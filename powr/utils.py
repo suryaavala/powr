@@ -1,5 +1,5 @@
 """Utility functions for the powr package."""
-from typing import List
+from typing import Dict, List
 
 import pandas as pd
 
@@ -53,3 +53,30 @@ def _str_to_datetime(
     raise ValueError(
         f"Could not convert {datetime_string} to datetime, tried {known_strptimes}"
     )
+
+
+def split_dataset_df(
+    preprocessed_df: pd.DataFrame,
+    train_size: float = 0.7,
+    test_size: float = 0.1,
+    val_size: float = 0.2,
+) -> Dict[str, pd.DataFrame]:
+    """Split a dataframe into train, test and validation datasets.
+
+    Args:
+        preprocessed_df (pd.DataFrame): preprocessed dataframe
+        train_size (float, optional): train dataset size. Defaults to 0.7.
+        test_size (float, optional): test dataset size. Defaults to 0.1.
+        val_size (float, optional): validation dataset size. Defaults to 0.2.
+
+    Returns:
+        Dict[str, pd.DataFrame]: dictionary of train, test and validation datasets
+    """
+    df = preprocessed_df.copy(deep=True)
+
+    n = len(df)
+    train_df = df[0 : int(n * 0.7)]  # noqa: E203
+    val_df = df[int(n * train_size) : int(n * (train_size + val_size))]  # noqa: E203
+    test_df = df[int(n * (train_size + val_size)) :]  # noqa: E203
+
+    return {"train": train_df, "val": val_df, "test": test_df}

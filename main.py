@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 import typer
 
 from config import config
@@ -21,9 +22,60 @@ def elt_data():
     # Clean
     cleaned_data_path = Path(config.CLEAN_DATA_DIR, "data.csv")
     df_clean = data.clean_df(df_raw, datatime_str_fmts=config.EXPECTED_TIME_FMTS)
-    df_clean.to_csv(cleaned_data_path, index=False)
     logger.info("Cleaned data!")
+
+    # Save
+    df_clean.to_csv(cleaned_data_path, index=False)
     logger.info(f"Saved data to {cleaned_data_path}!")
+
+
+@app.command()
+def preprocess_data():
+    """Preprocess our data and generate features."""
+
+    # Load
+    cleaned_data_path = Path(config.CLEAN_DATA_DIR, "data.csv")
+    df_clean = pd.read_csv(cleaned_data_path, parse_dates=["CREATED_AT"])
+    logger.info("Loaded cleaned data!")
+
+    # Preprocess
+    df_preprocessed = data.preprocess_df(df_clean)
+    logger.info("Preprocessed data!")
+    preprocessed_data_path = Path(config.PROCESSED_DATA_DIR, "data.csv")
+
+    # Save
+    df_preprocessed.to_csv(preprocessed_data_path, index=False)
+    logger.info(f"Saved data to {preprocessed_data_path}!")
+
+
+@app.command()
+def generate_dataset():
+    """Generate our dataset."""
+
+    # Load
+    preprocessed_data_path = Path(config.PROCESSED_DATA_DIR, "data.csv")
+    df_preprocessed = pd.read_csv(preprocessed_data_path)
+    logger.info("Loaded preprocessed data!")
+
+    # Generate
+    ds = data.generate_dataset(df_preprocessed)
+    train_df = ds["train"]
+    val_df = ds["val"]
+    test_df = ds["test"]
+    logger.info("Generated dataset!")
+
+    # Dataset paths
+    train_dataset_path = Path(config.DATASET_DIR, "train.csv")
+    test_dataset_path = Path(config.DATASET_DIR, "test.csv")
+    val_dataset_path = Path(config.DATASET_DIR, "val.csv")
+
+    # Save
+    train_df.to_csv(train_dataset_path, index=False)
+    test_df.to_csv(test_dataset_path, index=False)
+    val_df.to_csv(val_dataset_path, index=False)
+    logger.info(
+        f"Saved data to {(train_dataset_path, test_dataset_path, val_dataset_path)}!"
+    )
 
 
 @app.command()

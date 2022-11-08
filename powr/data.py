@@ -1,10 +1,11 @@
 """Module that contains data ops"""
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
+import numpy as np
 import pandas as pd
 
-from powr.utils import _str_to_datetime, are_dfs_equivalent
+from powr import utils
 
 
 def load_merge_raw_data(raw_data_dir: Path) -> pd.DataFrame:
@@ -25,7 +26,7 @@ def load_merge_raw_data(raw_data_dir: Path) -> pd.DataFrame:
     ]
     df_raw_list = [pd.read_csv(fpath) for fpath in abs_fpaths_raw_data_files]
 
-    if are_dfs_equivalent(df_raw_list):
+    if utils.are_dfs_equivalent(df_raw_list):
         df_raw = pd.concat(df_raw_list, axis=0, ignore_index=True)
         return df_raw
 
@@ -62,7 +63,7 @@ def clean_df(
     # convert date column to datetime
     # pretty slow but okay for a first pass, can vectorise/optimise later
     df["CREATED_AT"] = df["CREATED_AT"].apply(
-        lambda x: _str_to_datetime(x, datatime_str_fmts)
+        lambda x: utils._str_to_datetime(x, datatime_str_fmts)
     )
 
     # drop duplicate rows & rows where power consumption is negative
@@ -77,3 +78,71 @@ def clean_df(
     df.sort_values(by=["CREATED_AT"], inplace=True, ignore_index=True)
     df.reset_index(drop=True, inplace=True)
     return df
+
+
+def preprocess_df(cleaned_df: pd.DataFrame) -> pd.DataFrame:
+    """Preprocess data
+        - removes date time duplicates by mean imputation
+        - time series resampling to 5min frequency by summing values in bins
+        - modelling time as hourly, daily cyclical variables in the form of sin & cos
+
+
+    Args:
+        df (pd.DataFrame): dataframe
+
+    Returns:
+        pd.DataFrame: preprocessed dataframe
+    """
+
+    df = cleaned_df.copy(deep=True)
+
+    # remove date time duplicates by mean imputation
+    df = df.groupby("CREATED_AT").mean(numeric_only=True)
+
+    # time series resampling to 5min frequency by summing values in bins
+    df = df.resample("5min").sum()
+    df.reset_index(inplace=True)
+
+    # modelling time as daily, hourly sin & cos waves
+    date_time = df.pop("CREATED_AT")
+    timestamp_s = date_time.map(pd.Timestamp.timestamp)
+    day = 24 * 60 * 60
+    hour = 60 * 60
+
+    df["Day sin"] = np.sin(timestamp_s * (2 * np.pi / day))
+    df["Day cos"] = np.cos(timestamp_s * (2 * np.pi / day))
+    df["Hour sin"] = np.sin(timestamp_s * (2 * np.pi / hour))
+    df["Hour cos"] = np.cos(timestamp_s * (2 * np.pi / hour))
+
+    return df
+
+
+def generate_dataset(preprocessed_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+    """Generate dataset
+        - splits data into train, val & test sets
+        - normalises data
+
+    Args:
+        preprocessed_df (pd.DataFrame): preprocessed dataframe
+
+    Returns:
+        Dict[str, pd.DataFrame]: dictionary of train, val & test sets
+    """
+
+    df = preprocessed_df.copy(deep=True)
+
+    # split data into train, val & test sets
+    ds = utils.split_dataset_df(df)
+    train_df = ds["train"]
+    val_df = ds["val"]
+    test_df = ds["test"]
+
+    # normalise data
+    train_mean = train_df.mean()
+    train_std = train_df.std()
+
+    train_df = (train_df - train_mean) / train_std
+    val_df = (val_df - train_mean) / train_std
+    test_df = (test_df - train_mean) / train_std
+
+    return {"train": train_df, "val": val_df, "test": test_df}

@@ -18,3 +18,61 @@ stages:
     - path: data/clean/data.csv
       md5: eb8ba10f23fe9a05f14d1bf580999a8c
       size: 2742910
+  clean-data:
+    cmd: make elt-data
+    deps:
+    - path: data/raw
+      md5: 4382c1d977abdb84b8ee8f654c0dd232.dir
+      size: 13586309
+      nfiles: 8
+    - path: main.py
+      md5: ce088bc3b309f470f33f3dcb54f2d206
+      size: 2312
+    - path: powr
+      md5: 50228e285f1c32bd489310b856428458.dir
+      size: 19240
+      nfiles: 10
+    outs:
+    - path: data/clean/data.csv
+      md5: eb8ba10f23fe9a05f14d1bf580999a8c
+      size: 2742910
+  preprocess-data:
+    cmd: make preprocess-data
+    deps:
+    - path: data/clean/data.csv
+      md5: eb8ba10f23fe9a05f14d1bf580999a8c
+      size: 2742910
+    - path: main.py
+      md5: ce088bc3b309f470f33f3dcb54f2d206
+      size: 2312
+    - path: powr
+      md5: 50228e285f1c32bd489310b856428458.dir
+      size: 19240
+      nfiles: 10
+    outs:
+    - path: data/preprocessed/data.csv
+      md5: 4db895341d35fc99a86c23e3f09311f5
+      size: 5841370
+  generate-dataset:
+    cmd: make generate-dataset
+    deps:
+    - path: data/preprocessed/data.csv
+      md5: 4db895341d35fc99a86c23e3f09311f5
+      size: 5841370
+    - path: main.py
+      md5: ce088bc3b309f470f33f3dcb54f2d206
+      size: 2312
+    - path: powr
+      md5: 50228e285f1c32bd489310b856428458.dir
+      size: 19240
+      nfiles: 10
+    outs:
+    - path: data/dataset/test.csv
+      md5: fee7d09f656002fa82bc87c11476c1b2
+      size: 677073
+    - path: data/dataset/train.csv
+      md5: 4e41fe267a41d555a756a446dbbf355e
+      size: 4737703
+    - path: data/dataset/val.csv
+      md5: f95a08de9b81505f13d3032370b84895
+      size: 1351226

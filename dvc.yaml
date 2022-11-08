@@ -1,5 +1,5 @@
 stages:
-  prepare-data:
+  clean-data:
     cmd: make elt-data
     deps:
       - powr
@@ -7,3 +7,23 @@ stages:
       - data/raw
     outs:
       - data/clean/data.csv
+
+  preprocess-data:
+    cmd: make preprocess-data
+    deps:
+      - powr
+      - main.py
+      - data/clean/data.csv
+    outs:
+      - data/preprocessed/data.csv
+
+  generate-dataset:
+    cmd: make generate-dataset
+    deps:
+      - powr
+      - main.py
+      - data/preprocessed/data.csv
+    outs:
+      - data/dataset/train.csv
+      - data/dataset/test.csv
+      - data/dataset/val.csv

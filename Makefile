@@ -113,6 +113,16 @@ test-watch:
 elt-data:
 	python3 main.py elt-data
 
+.PHONY: preprocess-data
+## preprocess data
+preprocess-data:
+	python3 main.py preprocess-data
+
+.PHONY: generate-dataset
+## generate dataset
+generate-dataset:
+	python3 main.py generate-dataset
+
 .PHONY: show-pipeline
 ## show pipeline
 show-pipeline:
@@ -122,6 +132,7 @@ show-pipeline:
 ## run pipeline
 run-pipeline: show-pipeline
 	dvc repro
+	dvc push
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
