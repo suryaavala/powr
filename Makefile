@@ -99,6 +99,14 @@ dvc-data-sync:
 	dvc push
 	dvc status -r redundant -q data
 
+
+####### Dev Help #######
+.PHONY: test-watch
+test-watch:
+	exclude_pattern=".*"
+	include_pattern=".*\.py$$"
+	fswatch -or1 -e "$exclude_pattern" -i "$include_pattern" --event=Updated powr tests | xargs -n1 -I{} make test
+
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
