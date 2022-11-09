@@ -45,7 +45,8 @@ def clean_df(
        - drops duplicate rows
        - drops rows with negative power consumption values
        - sorts dataframe by datetime
-       - resets index
+       - removes date time duplicates by mean imputation
+       - time series resampling to 5min frequency by summing values in bins
 
     Args:
         raw_dataframe (pd.DataFrame): raw dataframe
@@ -75,15 +76,21 @@ def clean_df(
     cols_to_drop = nunique[nunique == 1].index
     df.drop(cols_to_drop, axis=1, inplace=True)
 
+    # sorting values by datetime
     df.sort_values(by=["CREATED_AT"], inplace=True, ignore_index=True)
     df.reset_index(drop=True, inplace=True)
+
+    # remove date time duplicates by mean imputation
+    df = df.groupby("CREATED_AT").mean(numeric_only=True)
+
+    # time series resampling to 5min frequency by summing values in bins
+    df = df.resample("5min").sum()
+
     return df
 
 
 def preprocess_df(cleaned_df: pd.DataFrame) -> pd.DataFrame:
     """Preprocess data
-        - removes date time duplicates by mean imputation
-        - time series resampling to 5min frequency by summing values in bins
         - modelling time as hourly, daily cyclical variables in the form of sin & cos
 
 
@@ -95,13 +102,6 @@ def preprocess_df(cleaned_df: pd.DataFrame) -> pd.DataFrame:
     """
 
     df = cleaned_df.copy(deep=True)
-
-    # remove date time duplicates by mean imputation
-    df = df.groupby("CREATED_AT").mean(numeric_only=True)
-
-    # time series resampling to 5min frequency by summing values in bins
-    df = df.resample("5min").sum()
-    df.reset_index(inplace=True)
 
     # modelling time as daily, hourly sin & cos waves
     date_time = df.pop("CREATED_AT")

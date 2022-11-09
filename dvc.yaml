@@ -8,33 +8,33 @@ stages:
     outs:
       - data/clean/data.csv
 
-  preprocess-data:
-    cmd: make preprocess-data
-    deps:
-      - powr
-      - main.py
-      - data/clean/data.csv
-    outs:
-      - data/preprocessed/data.csv
+  # preprocess-data:
+  #   cmd: make preprocess-data
+  #   deps:
+  #     - powr
+  #     - main.py
+  #     - data/clean/data.csv
+  #   outs:
+  #     - data/preprocessed/data.csv
 
-  generate-dataset:
-    cmd: make generate-dataset
-    deps:
-      - powr
-      - main.py
-      - data/preprocessed/data.csv
-    outs:
-      - data/dataset/train.csv
-      - data/dataset/test.csv
-      - data/dataset/val.csv
+  # generate-dataset:
+  #   cmd: make generate-dataset
+  #   deps:
+  #     - powr
+  #     - main.py
+  #     - data/preprocessed/data.csv
+  #   outs:
+  #     - data/dataset/train.csv
+  #     - data/dataset/test.csv
+  #     - data/dataset/val.csv
 
-  train-model:
-    cmd: make train-model
-    deps:
-      - powr
-      - main.py
-      - data/dataset/train.csv
-      - data/dataset/test.csv
-      - data/dataset/val.csv
-    outs:
-      - models/linear_model
+  # train-model:
+  #   cmd: make train-model
+  #   deps:
+  #     - powr
+  #     - main.py
+  #     - data/dataset/train.csv
+  #     - data/dataset/test.csv
+  #     - data/dataset/val.csv
+  #   outs:
+  #     - models/linear_model

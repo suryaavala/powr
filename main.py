@@ -25,7 +25,7 @@ def elt_data():
     logger.info("Cleaned data!")
 
     # Save
-    df_clean.to_csv(cleaned_data_path, index=False)
+    df_clean.to_csv(cleaned_data_path, index=True)
     logger.info(f"Saved data to {cleaned_data_path}!")
 
 
