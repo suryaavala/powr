@@ -5,7 +5,7 @@ import typer
 
 from config import config
 from config.config import logger
-from powr import data
+from powr import data, evaluate, train, utils, window
 
 # Initialize Typer CLI app
 app = typer.Typer()
@@ -76,6 +76,42 @@ def generate_dataset():
     logger.info(
         f"Saved data to {(train_dataset_path, test_dataset_path, val_dataset_path)}!"
     )
+
+
+@app.command()
+def train_model():
+    """Train our model."""
+
+    # Load
+    ds = utils.load_dataset(config.DATASET_DIR)
+    logger.info("Loaded dataset!")
+
+    # Train
+    num_features = ds["train"].shape[1]
+    model = train.build_model(config.WINDOW_SIZE, num_features)
+    multi_window = window.WindowGenerator(
+        input_width=config.WINDOW_SIZE,
+        label_width=config.WINDOW_SIZE,
+        shift=config.WINDOW_SIZE,
+        dataset_dict=ds,
+        label_columns=[config.LABELLED_COLUMN_NAME],
+    )
+
+    model, history = train.train_model(
+        model, multi_window, config.EPOCHS, config.PATIENCE
+    )
+    logger.info("Trained model!")
+
+    # Evaluate
+    val_performance, test_performance = evaluate.evaluate_model(model, multi_window)
+    logger.info(
+        f"Evaluated model!\nMetrics: {model.metrics_names}\nVal performance: {val_performance}\nTest performance: {test_performance}"  # noqa: E501
+    )
+
+    # Save
+    model_path = Path(config.MODEL_DIR, "linear_model")
+    model.save(model_path)
+    logger.info(f"Saved model to {model_path}!")
 
 
 @app.command()

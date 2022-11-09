@@ -27,3 +27,14 @@ stages:
       - data/dataset/train.csv
       - data/dataset/test.csv
       - data/dataset/val.csv
+
+  train-model:
+    cmd: make train-model
+    deps:
+      - powr
+      - main.py
+      - data/dataset/train.csv
+      - data/dataset/test.csv
+      - data/dataset/val.csv
+    outs:
+      - models/linear_model

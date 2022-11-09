@@ -123,6 +123,11 @@ preprocess-data:
 generate-dataset:
 	python3 main.py generate-dataset
 
+.PHONY: train-model
+## train model
+train-model:
+	python3 main.py train-model
+
 .PHONY: show-pipeline
 ## show pipeline
 show-pipeline:
