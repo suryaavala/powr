@@ -13,39 +13,24 @@ app = typer.Typer()
 
 @app.command()
 def elt_data():
-    """Extra, load, and clean our data."""
+    """Extra, load, and transform our data."""
 
     # Extract + Load
     df_raw = data.load_merge_raw_data(config.RAW_DATA_DIR)
     logger.info("Loaded & merged data!")
 
     # Clean
-    cleaned_data_path = Path(config.CLEAN_DATA_DIR, "data.csv")
     df_clean = data.clean_df(df_raw, datatime_str_fmts=config.EXPECTED_TIME_FMTS)
     logger.info("Cleaned data!")
 
+    # Transform
+    df_clean = data.preprocess_df(df_clean)
+    logger.info("Preprocessed data!")
+
     # Save
+    cleaned_data_path = Path(config.CLEAN_DATA_DIR, "data.csv")
     df_clean.to_csv(cleaned_data_path, index=True)
     logger.info(f"Saved data to {cleaned_data_path}!")
-
-
-@app.command()
-def preprocess_data():
-    """Preprocess our data and generate features."""
-
-    # Load
-    cleaned_data_path = Path(config.CLEAN_DATA_DIR, "data.csv")
-    df_clean = pd.read_csv(cleaned_data_path, parse_dates=["CREATED_AT"])
-    logger.info("Loaded cleaned data!")
-
-    # Preprocess
-    df_preprocessed = data.preprocess_df(df_clean)
-    logger.info("Preprocessed data!")
-    preprocessed_data_path = Path(config.PROCESSED_DATA_DIR, "data.csv")
-
-    # Save
-    df_preprocessed.to_csv(preprocessed_data_path, index=False)
-    logger.info(f"Saved data to {preprocessed_data_path}!")
 
 
 @app.command()

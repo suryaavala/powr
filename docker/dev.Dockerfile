@@ -19,6 +19,8 @@ COPY . /app/
 
 RUN make install-py-dev-req
 
+RUN make dvc-pull
+
 CMD ["poetry-shell"]
 
 ENTRYPOINT [ "make" ]

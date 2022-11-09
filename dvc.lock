@@ -26,16 +26,16 @@ stages:
       size: 13586309
       nfiles: 8
     - path: main.py
-      md5: d2c1e006620e670a70844a2bb8ed01db
-      size: 3416
+      md5: 548d1ca7fd853a65a76199f5aaa5bc87
+      size: 2920
     - path: powr
-      md5: 519e3c8ed25a59c35455cf2960c9fe60.dir
-      size: 30288
+      md5: d2099fa535ffca11bb5ea73eeb2a0ade.dir
+      size: 30663
       nfiles: 13
     outs:
     - path: data/clean/data.csv
-      md5: 5f261ca6d3aa2542074e5cd2a61c8789
-      size: 2534689
+      md5: 1a7a096c4789c90e3f56d8c58cc7ca74
+      size: 10314936
   preprocess-data:
     cmd: make preprocess-data
     deps:

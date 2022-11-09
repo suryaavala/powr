@@ -8,15 +8,6 @@ stages:
     outs:
       - data/clean/data.csv
 
-  # preprocess-data:
-  #   cmd: make preprocess-data
-  #   deps:
-  #     - powr
-  #     - main.py
-  #     - data/clean/data.csv
-  #   outs:
-  #     - data/preprocessed/data.csv
-
   # generate-dataset:
   #   cmd: make generate-dataset
   #   deps:

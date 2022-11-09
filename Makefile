@@ -17,7 +17,7 @@ POETRY_VERSION = 1.2.2
 
 ####### SETUP ENV #######
 ## Setup Local development environment
-setup-dev: install-poetry install-py-dev-req install-git-hooks poetry-shell
+setup-dev: install-poetry install-py-dev-req install-git-hooks poetry-shell dvc-pull
 
 ## Setup Production environment
 setup-prod: install-poetry install-py-prod-req
@@ -93,8 +93,13 @@ test-lint-all: lint-all test
 
 
 ####### DVC #######
+.PHONY: dvc-pull
+dvc-pull:
+	dvc pull
+
 ## Add data to dvc & sync with remote
 dvc-sync:
+	dvc pull
 	dvc push
 	dvc status -r redundant -q
 	dvc status -q
@@ -112,11 +117,6 @@ test-watch:
 ## clean up data
 elt-data:
 	python3 main.py elt-data
-
-.PHONY: preprocess-data
-## preprocess data
-preprocess-data:
-	python3 main.py preprocess-data
 
 .PHONY: generate-dataset
 ## generate dataset

@@ -103,33 +103,37 @@ def preprocess_df(cleaned_df: pd.DataFrame) -> pd.DataFrame:
 
     df = cleaned_df.copy(deep=True)
 
-    # modelling time as daily, hourly sin & cos waves
-    date_time = df.pop("CREATED_AT")
-    timestamp_s = date_time.map(pd.Timestamp.timestamp)
-    day = 24 * 60 * 60
-    hour = 60 * 60
+    # modelling time as hourly, daily, monthly cyclical variables in the form of sin & cos
+    ts = df.index.astype(np.int64) // 10**9
+    df["day_sin"] = np.sin(ts * (2 * np.pi / 86400))
+    df["day_cos"] = np.cos(ts * (2 * np.pi / 86400))
+    df["hour_sin"] = np.sin(ts * (2 * np.pi / 3600))
+    df["hour_cos"] = np.cos(ts * (2 * np.pi / 3600))
+    df["month_sin"] = np.sin(ts * (2 * np.pi / 2.628e6))
+    df["month_cos"] = np.cos(ts * (2 * np.pi / 2.628e6))
 
-    df["Day sin"] = np.sin(timestamp_s * (2 * np.pi / day))
-    df["Day cos"] = np.cos(timestamp_s * (2 * np.pi / day))
-    df["Hour sin"] = np.sin(timestamp_s * (2 * np.pi / hour))
-    df["Hour cos"] = np.cos(timestamp_s * (2 * np.pi / hour))
+    # NOTE moving averages might not be available during prediction time, so ommitting them as a cautionary measure
+    # calculating rolling averages of power consumption
+    # df["MA30"] = df["VALUE"].rolling(window=30).mean()
+    # df["MA15"] = df["VALUE"].rolling(window=15).mean()
+    # df[["MA15", "MA30"]] = df[["MA15", "MA30"]].fillna(0, inplace=False)
 
     return df
 
 
-def generate_dataset(preprocessed_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+def generate_dataset(cleaned_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     """Generate dataset
         - splits data into train, val & test sets
         - normalises data
 
     Args:
-        preprocessed_df (pd.DataFrame): preprocessed dataframe
+        cleaned_df (pd.DataFrame): preprocessed dataframe
 
     Returns:
         Dict[str, pd.DataFrame]: dictionary of train, val & test sets
     """
 
-    df = preprocessed_df.copy(deep=True)
+    df = cleaned_df.copy(deep=True)
 
     # split data into train, val & test sets
     ds = utils.split_dataset_df(df)
