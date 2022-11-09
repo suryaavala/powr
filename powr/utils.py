@@ -1,4 +1,5 @@
 """Utility functions for the powr package."""
+from pathlib import Path
 from typing import Dict, List
 
 import pandas as pd
@@ -78,5 +79,21 @@ def split_dataset_df(
     train_df = df[0 : int(n * 0.7)]  # noqa: E203
     val_df = df[int(n * train_size) : int(n * (train_size + val_size))]  # noqa: E203
     test_df = df[int(n * (train_size + val_size)) :]  # noqa: E203
+
+    return {"train": train_df, "val": val_df, "test": test_df}
+
+
+def load_dataset(dataset_dir: str) -> Dict[str, pd.DataFrame]:
+    """Load train, test and validation datasets from a directory.
+
+    Args:
+        dataset_dir (str): directory containing train, test and validation datasets
+
+    Returns:
+        Dict[str, pd.DataFrame]: dictionary of train, test and validation datasets
+    """
+    train_df = pd.read_csv(Path(dataset_dir, "train.csv"))
+    val_df = pd.read_csv(Path(dataset_dir, "val.csv"))
+    test_df = pd.read_csv(Path(dataset_dir, "test.csv"))
 
     return {"train": train_df, "val": val_df, "test": test_df}
