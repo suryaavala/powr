@@ -1,9 +1,11 @@
 """Module that contains data ops"""
-from pathlib import Path
+from pathlib import Path, PosixPath
 from typing import Dict, List
 
+import joblib
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
 from powr import utils
 
@@ -121,13 +123,18 @@ def preprocess_df(cleaned_df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def generate_dataset(cleaned_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+def generate_dataset(
+    cleaned_df: pd.DataFrame,
+    train_min_max_scaler_path: PosixPath,
+) -> Dict[str, pd.DataFrame]:
     """Generate dataset
         - splits data into train, val & test sets
         - normalises data
 
     Args:
         cleaned_df (pd.DataFrame): preprocessed dataframe
+        train_min_max_scaler_path (PosixPath): path to load from or save train min max scaler
+                                    will check if the path exists then loads it otherwise creates one and saves it
 
     Returns:
         Dict[str, pd.DataFrame]: dictionary of train, val & test sets
@@ -137,16 +144,25 @@ def generate_dataset(cleaned_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
 
     # split data into train, val & test sets
     ds = utils.split_dataset_df(df)
-    train_df = ds["train"]
-    val_df = ds["val"]
-    test_df = ds["test"]
+
+    # Load or create a scaler
+    if train_min_max_scaler_path.exists():
+        scaler = joblib.load(train_min_max_scaler_path)
+    else:
+        scaler = MinMaxScaler(feature_range=(-1, 1))
+        # scaler.fit(df)
+        # joblib.dump(scaler, train_min_max_scaler_path)
 
     # normalise data
-    train_mean = train_df.mean()
-    train_std = train_df.std()
+    for ds_type in ds:
+        # fits only on training data
+        if ds_type == "train":
+            scaled = utils.scale_features(ds[ds_type], scaler=scaler, fit=True)
+        else:
+            scaled = utils.scale_features(ds[ds_type], scaler=scaler, fit=False)
+        scaler = scaled["scaler"]
+        ds[ds_type] = scaled["df"]
 
-    train_df = (train_df - train_mean) / train_std
-    val_df = (val_df - train_mean) / train_std
-    test_df = (test_df - train_mean) / train_std
-
-    return {"train": train_df, "val": val_df, "test": test_df}
+    # saves scaler back to disk
+    joblib.dump(scaler, train_min_max_scaler_path)
+    return ds

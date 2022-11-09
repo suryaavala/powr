@@ -9,7 +9,6 @@ CONFIG_DIR = Path(BASE_DIR, "config")
 DATA_DIR = Path(BASE_DIR, "data")
 RAW_DATA_DIR = Path(DATA_DIR, "raw")
 CLEAN_DATA_DIR = Path(DATA_DIR, "clean")
-PROCESSED_DATA_DIR = Path(DATA_DIR, "preprocessed")
 DATASET_DIR = Path(DATA_DIR, "dataset")
 MODEL_DIR = Path(BASE_DIR, "models")
 

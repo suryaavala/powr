@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import pandas as pd
 import typer
 
 from config import config
@@ -38,29 +37,21 @@ def generate_dataset():
     """Generate our dataset."""
 
     # Load
-    preprocessed_data_path = Path(config.PROCESSED_DATA_DIR, "data.csv")
-    df_preprocessed = pd.read_csv(preprocessed_data_path)
+    cleaned_data_path = Path(config.CLEAN_DATA_DIR, "data.csv")
+    df_clean = utils._load_df_head_parse_datetime(
+        cleaned_data_path, header_row=0, date_col="CREATED_AT", index_col="CREATED_AT"
+    )
     logger.info("Loaded preprocessed data!")
 
     # Generate
-    ds = data.generate_dataset(df_preprocessed)
-    train_df = ds["train"]
-    val_df = ds["val"]
-    test_df = ds["test"]
+    scaler_path = Path(config.MODEL_DIR, "scaler.pkl")
+    ds = data.generate_dataset(df_clean, scaler_path)
     logger.info("Generated dataset!")
 
-    # Dataset paths
-    train_dataset_path = Path(config.DATASET_DIR, "train.csv")
-    test_dataset_path = Path(config.DATASET_DIR, "test.csv")
-    val_dataset_path = Path(config.DATASET_DIR, "val.csv")
-
     # Save
-    train_df.to_csv(train_dataset_path, index=False)
-    test_df.to_csv(test_dataset_path, index=False)
-    val_df.to_csv(val_dataset_path, index=False)
-    logger.info(
-        f"Saved data to {(train_dataset_path, test_dataset_path, val_dataset_path)}!"
-    )
+    utils.save_dataset(ds, config.DATASET_DIR)
+    logger.info(f"Scaler saved to {scaler_path}!")
+    logger.info(f"Saved dataset to {config.DATASET_DIR}!")
 
 
 @app.command()

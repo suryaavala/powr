@@ -1,8 +1,9 @@
 """Utility functions for the powr package."""
-from pathlib import Path
-from typing import Dict, List
+from pathlib import Path, PosixPath
+from typing import Dict, List, Union
 
 import pandas as pd
+import sklearn
 
 
 def are_dfs_equivalent(df_list: List[pd.DataFrame]) -> bool:
@@ -83,6 +84,29 @@ def split_dataset_df(
     return {"train": train_df, "val": val_df, "test": test_df}
 
 
+def _load_df_head_parse_datetime(
+    csv_path: Path,
+    header_row: int,
+    date_col: str,
+    index_col: str,
+) -> pd.DataFrame:
+    """Load a csv file and parse the datetime column.
+
+    Args:
+        csv_path (Path): path to the csv file
+        header_row (int): row number of the header
+        date_col (str): name of the datetime column
+        index_col (str): name of the index column
+
+    Returns:
+        pd.DataFrame: dataframe with parsed datetime column
+    """
+    df = pd.read_csv(
+        csv_path, header=header_row, parse_dates=[date_col], index_col=index_col
+    )
+    return df
+
+
 def load_dataset(dataset_dir: str) -> Dict[str, pd.DataFrame]:
     """Load train, test and validation datasets from a directory.
 
@@ -92,8 +116,49 @@ def load_dataset(dataset_dir: str) -> Dict[str, pd.DataFrame]:
     Returns:
         Dict[str, pd.DataFrame]: dictionary of train, test and validation datasets
     """
-    train_df = pd.read_csv(Path(dataset_dir, "train.csv"))
-    val_df = pd.read_csv(Path(dataset_dir, "val.csv"))
-    test_df = pd.read_csv(Path(dataset_dir, "test.csv"))
+    ds = {}
+    for ds_type in ["train", "test", "val"]:
+        df = _load_df_head_parse_datetime(
+            Path(dataset_dir, f"{ds_type}.csv"),
+            header_row=0,
+            date_col="CREATED_AT",
+            index_col="CREATED_AT",
+        )
+        ds[ds_type] = df
+    return ds
 
-    return {"train": train_df, "val": val_df, "test": test_df}
+
+def save_dataset(dataset: Dict[str, pd.DataFrame], dataset_dir_path: PosixPath) -> None:
+    """Save train, test and validation datasets to a directory.
+
+    Args:
+        dataset (Dict[str, pd.DataFrame]): dictionary of train, test and validation datasets
+        dataset_dir_path (PosixPath): path to the directory to save the datasets
+    """
+    for ds_type, df in dataset.items():
+        df.to_csv(Path(dataset_dir_path, f"{ds_type}.csv"), index=True)
+    return None
+
+
+def scale_features(
+    df: pd.DataFrame,
+    scaler: sklearn.base.BaseEstimator,
+    fit: bool = False,
+) -> Dict[str, Union[pd.DataFrame, sklearn.base.BaseEstimator]]:
+    """Scale features of a dataframe using a scaler.
+
+    Args:
+        scaler (sklearn.base.BaseEstimator): scaler to use
+        df (pd.DataFrame): dataframe to scale
+        fit (bool, optional): whether to fit the scaler also. Defaults to False.
+
+    Returns:
+        Dict[str, Union[pd.DataFrame, sklearn.preprocessing._data.MinMaxScaler]]: dictionary containing the
+                                                        scaled dataframe and the scaler
+    """
+    scaled_df = df.copy(deep=True)
+    if fit:
+        scaled_df[df.columns] = scaler.fit_transform(df[df.columns])
+    else:
+        scaled_df[df.columns] = scaler.transform(df[df.columns])
+    return {"df": scaled_df, "scaler": scaler}
