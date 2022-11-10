@@ -4,7 +4,7 @@ import typer
 
 from config import config
 from config.config import logger
-from powr import data, evaluate, train, utils, window
+from powr import data, evaluate, predict, train, utils, window
 
 # Initialize Typer CLI app
 app = typer.Typer()
@@ -16,20 +16,20 @@ def elt_data():
 
     # Extract + Load
     df_raw = data.load_merge_raw_data(config.RAW_DATA_DIR)
-    logger.info("Loaded & merged data!")
+    logger.info("✅ Loaded & merged data!")
 
     # Clean
     df_clean = data.clean_df(df_raw, datatime_str_fmts=config.EXPECTED_TIME_FMTS)
-    logger.info("Cleaned data!")
+    logger.info("✅ Cleaned data!")
 
     # Transform
     df_clean = data.preprocess_df(df_clean)
-    logger.info("Preprocessed data!")
+    logger.info("✅ Preprocessed data!")
 
     # Save
     cleaned_data_path = Path(config.CLEAN_DATA_DIR, "data.csv")
     df_clean.to_csv(cleaned_data_path, index=True)
-    logger.info(f"Saved data to {cleaned_data_path}!")
+    logger.info(f"✅ Saved data to {cleaned_data_path}!")
 
 
 @app.command()
@@ -41,17 +41,17 @@ def generate_dataset():
     df_clean = utils._load_df_head_parse_datetime(
         cleaned_data_path, header_row=0, date_col="CREATED_AT", index_col="CREATED_AT"
     )
-    logger.info("Loaded preprocessed data!")
+    logger.info("✅ Loaded preprocessed data!")
 
     # Generate
     scaler_path = Path(config.MODEL_DIR, "scaler.pkl")
     ds = data.generate_dataset(df_clean, scaler_path)
-    logger.info("Generated dataset!")
+    logger.info("✅ Generated dataset!")
 
     # Save
     utils.save_dataset(ds, config.DATASET_DIR)
-    logger.info(f"Scaler saved to {scaler_path}!")
-    logger.info(f"Saved dataset to {config.DATASET_DIR}!")
+    logger.info(f"✅ Scaler saved to {scaler_path}!")
+    logger.info(f"✅ Saved dataset to {config.DATASET_DIR}!")
 
 
 @app.command()
@@ -60,7 +60,7 @@ def train_model():
 
     # Load
     ds = utils.load_dataset(config.DATASET_DIR)
-    logger.info("Loaded dataset!")
+    logger.info("✅ Loaded dataset!")
 
     # Train
     num_features = ds["train"].shape[1]
@@ -76,24 +76,45 @@ def train_model():
     model, history = train.train_model(
         model, multi_window, config.EPOCHS, config.PATIENCE
     )
-    logger.info("Trained model!")
+    logger.info("✅ Trained model!")
 
     # Evaluate
     val_performance, test_performance = evaluate.evaluate_model(model, multi_window)
     logger.info(
-        f"Evaluated model!\nMetrics: {model.metrics_names}\nVal performance: {val_performance}\nTest performance: {test_performance}"  # noqa: E501
+        f"✅ Evaluated model!\nMetrics: {model.metrics_names}\nVal performance: {val_performance}\nTest performance: {test_performance}"  # noqa: E501
     )
 
     # Train on full dataset before saving
     model, history = train.train_model(
         model, multi_window, config.EPOCHS, config.PATIENCE
     )
-    logger.info("Trained model again on full dataset!")
+    logger.info("✅ Trained model again on full dataset!")
 
     # Save
     model_path = Path(config.MODEL_DIR, "linear_model")
     model.save(model_path)
-    logger.info(f"Saved model to {model_path}!")
+    logger.info(f"✅ Saved model to {model_path}!")
+
+
+@app.command()
+def predict_powr():
+    """Predict the power consumption for the next 24hrs using the last 24 hours."""
+
+    model_path = Path(config.MODEL_DIR, "linear_model")
+    scaler_path = Path(config.MODEL_DIR, "scaler.pkl")
+    last_24_data_path = Path(config.DATASET_DIR, "test.csv")
+
+    predictions = predict.predict_next_24(
+        model_path=model_path,
+        scaler_path=scaler_path,
+        last_24_data_path=last_24_data_path,
+    )
+    logger.info(f"✅ Predictions: \n{predictions.to_markdown(index=False)}")
+
+    # Save
+    prediction_path = Path(config.PREDICTION_DIR, "predictions.csv")
+    predictions.to_csv(prediction_path, index=False)
+    logger.info(f"✅ Saved predictions to {prediction_path}!")
 
 
 @app.command()

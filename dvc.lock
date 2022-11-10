@@ -26,12 +26,12 @@ stages:
       size: 13586309
       nfiles: 8
     - path: main.py
-      md5: 079209d74751b62dd463ec0520021a2d
-      size: 2859
+      md5: 39eca9ef3d09ecb11048f631d2a02a19
+      size: 3649
     - path: powr
-      md5: 9865c864d4c5f91e680dc68c3d2cbc3c.dir
-      size: 39299
-      nfiles: 13
+      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
+      size: 41421
+      nfiles: 14
     outs:
     - path: data/clean/data.csv
       md5: 1a7a096c4789c90e3f56d8c58cc7ca74
@@ -60,12 +60,12 @@ stages:
       md5: 1a7a096c4789c90e3f56d8c58cc7ca74
       size: 10314936
     - path: main.py
-      md5: 079209d74751b62dd463ec0520021a2d
-      size: 2859
+      md5: 39eca9ef3d09ecb11048f631d2a02a19
+      size: 3649
     - path: powr
-      md5: 9865c864d4c5f91e680dc68c3d2cbc3c.dir
-      size: 39299
-      nfiles: 13
+      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
+      size: 41421
+      nfiles: 14
     outs:
     - path: data/dataset/test.csv
       md5: 6a76e8f7341e7fed6986b173785599d6
@@ -92,14 +92,36 @@ stages:
       md5: fa8f75e314645da899f3ba6639c6e8a1
       size: 2163844
     - path: main.py
-      md5: 079209d74751b62dd463ec0520021a2d
-      size: 2859
+      md5: 39eca9ef3d09ecb11048f631d2a02a19
+      size: 3649
     - path: powr
-      md5: 9865c864d4c5f91e680dc68c3d2cbc3c.dir
-      size: 39299
-      nfiles: 13
+      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
+      size: 41421
+      nfiles: 14
     outs:
     - path: models/linear_model
-      md5: ec21b5d3cb3f006918349d74f98b590f.dir
+      md5: 65f28781719c1b15742c45d5c5472841.dir
       size: 293435
       nfiles: 4
+  predict-powr:
+    cmd: make predict-powr
+    deps:
+    - path: data/dataset/
+      md5: 26729a730a42df183583be802ae90094.dir
+      size: 10802336
+      nfiles: 4
+    - path: main.py
+      md5: 39eca9ef3d09ecb11048f631d2a02a19
+      size: 3649
+    - path: models/linear_model
+      md5: 65f28781719c1b15742c45d5c5472841.dir
+      size: 293435
+      nfiles: 4
+    - path: powr
+      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
+      size: 41421
+      nfiles: 14
+    outs:
+    - path: data/predictions/predictions.csv
+      md5: c1a06c8368a3951cbedf39bd76ce89b5
+      size: 20967

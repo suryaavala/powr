@@ -128,6 +128,11 @@ generate-dataset:
 train-model:
 	python3 main.py train-model
 
+.PHONY: predict-powr
+## predict powr
+predict-powr:
+	python3 main.py predict-powr
+
 .PHONY: show-pipeline
 ## show pipeline
 show-pipeline:
