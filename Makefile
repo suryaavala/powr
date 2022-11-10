@@ -17,7 +17,9 @@ POETRY_VERSION = 1.2.2
 
 ####### SETUP ENV #######
 ## Setup Local development environment
-setup-dev: install-poetry install-py-dev-req install-git-hooks poetry-shell dvc-pull
+setup-dev: install-poetry install-py-dev-req install-git-hooks 
+	poetry run dvc pull
+	make poetry-shell
 
 ## Setup Production environment
 setup-prod: install-poetry install-py-prod-req
@@ -140,7 +142,7 @@ show-pipeline:
 
 .PHONY: run-pipeline
 ## run pipeline
-run-pipeline: show-pipeline
+run-pipeline: dvc-pull show-pipeline
 	dvc repro
 	dvc push
 #################################################################################

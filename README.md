@@ -8,6 +8,7 @@ A multistep power comnsuption prediction model for a single customer. Takes in t
 
 1. Setup Environment: `make setup-dev`
     - if you prefer to use a docker container instead of installing stuff locally, run `make docker-dev-shell`. This will load a docker container environemnt with everything setup for you.
+    - and run `make dvc-pull` just to make sure that you have pulled the raw data, this should help resolve issues if python complains that it can't find the raw data
 2. Run the ML pipeline End to End: `make run-pipeline`
    - I've created a very basic pipeline using a tool called dvc, that executes ML workflow steps as a DAG, which looks like this (`make show-pipeline`):
 

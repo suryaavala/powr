@@ -29,8 +29,8 @@ stages:
       md5: 39eca9ef3d09ecb11048f631d2a02a19
       size: 3649
     - path: powr
-      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
-      size: 41421
+      md5: 157cf34c954cdb6df04389cfcab976ce.dir
+      size: 41463
       nfiles: 14
     outs:
     - path: data/clean/data.csv
@@ -63,8 +63,8 @@ stages:
       md5: 39eca9ef3d09ecb11048f631d2a02a19
       size: 3649
     - path: powr
-      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
-      size: 41421
+      md5: 157cf34c954cdb6df04389cfcab976ce.dir
+      size: 41463
       nfiles: 14
     outs:
     - path: data/dataset/test.csv
@@ -95,13 +95,13 @@ stages:
       md5: 39eca9ef3d09ecb11048f631d2a02a19
       size: 3649
     - path: powr
-      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
-      size: 41421
+      md5: 157cf34c954cdb6df04389cfcab976ce.dir
+      size: 41463
       nfiles: 14
     outs:
     - path: models/linear_model
-      md5: 65f28781719c1b15742c45d5c5472841.dir
-      size: 293435
+      md5: 9c672e9ad0790edeeda0ddce828e2f37.dir
+      size: 293459
       nfiles: 4
   predict-powr:
     cmd: make predict-powr
@@ -114,14 +114,14 @@ stages:
       md5: 39eca9ef3d09ecb11048f631d2a02a19
       size: 3649
     - path: models/linear_model
-      md5: 65f28781719c1b15742c45d5c5472841.dir
-      size: 293435
+      md5: 9c672e9ad0790edeeda0ddce828e2f37.dir
+      size: 293459
       nfiles: 4
     - path: powr
-      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
-      size: 41421
+      md5: 157cf34c954cdb6df04389cfcab976ce.dir
+      size: 41463
       nfiles: 14
     outs:
     - path: data/predictions/predictions.csv
-      md5: c1a06c8368a3951cbedf39bd76ce89b5
-      size: 20967
+      md5: 9f6c3f286d2422a434499d945c3d55c0
+      size: 20996
