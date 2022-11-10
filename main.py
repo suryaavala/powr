@@ -84,6 +84,12 @@ def train_model():
         f"Evaluated model!\nMetrics: {model.metrics_names}\nVal performance: {val_performance}\nTest performance: {test_performance}"  # noqa: E501
     )
 
+    # Train on full dataset before saving
+    model, history = train.train_model(
+        model, multi_window, config.EPOCHS, config.PATIENCE
+    )
+    logger.info("Trained model again on full dataset!")
+
     # Save
     model_path = Path(config.MODEL_DIR, "linear_model")
     model.save(model_path)

@@ -1,4 +1,6 @@
-"""Module for data windowing - shamelessly copied from Tenforflow timeseries tutorial"""
+"""Module for data windowing
+shamelessly copied most of it from Tenforflow timeseries tutorial
+& modified it to suit my needs"""
 from typing import Dict, List, Union
 
 import numpy as np
@@ -147,6 +149,10 @@ class WindowGenerator:
     @property
     def test(self):
         return self.make_dataset(self.test_df)
+
+    @property
+    def all(self):
+        return self.make_dataset(self.train_df.append(self.val_df.append(self.test_df)))
 
     @property
     def example(self):

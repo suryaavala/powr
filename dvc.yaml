@@ -20,13 +20,13 @@ stages:
       - data/dataset/val.csv
       - models/scaler.pkl
 
-  # train-model:
-  #   cmd: make train-model
-  #   deps:
-  #     - powr
-  #     - main.py
-  #     - data/dataset/train.csv
-  #     - data/dataset/test.csv
-  #     - data/dataset/val.csv
-  #   outs:
-  #     - models/linear_model
+  train-model:
+    cmd: make train-model
+    deps:
+      - powr
+      - main.py
+      - data/dataset/train.csv
+      - data/dataset/test.csv
+      - data/dataset/val.csv
+    outs:
+      - models/linear_model

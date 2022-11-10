@@ -32,7 +32,11 @@ def build_model(output_steps: int, num_features: int) -> tf.keras.Model:
 
 
 def train_model(
-    model: tf.keras.Model, window: WindowGenerator, epochs: int, patience=2
+    model: tf.keras.Model,
+    window: WindowGenerator,
+    epochs: int,
+    patience=2,
+    all_data=False,
 ) -> Tuple[tf.keras.Model, tf.keras.callbacks.History]:
     """Train the given model on the given window.
 
@@ -41,6 +45,7 @@ def train_model(
         window (WindowGenerator): window generator with dataset to train on
         epochs (int): the number of epochs to train for
         patience (int): the number of epochs to wait before early stopping
+        all_data (bool): whether to train on all data or just the training set
 
     Returns:
         Tuple[tf.keras.Model, tf.keras.callbacks.History]: the trained model and the training history
@@ -54,11 +59,17 @@ def train_model(
         optimizer=tf.keras.optimizers.Adam(),
         metrics=[tf.keras.metrics.MeanAbsoluteError()],
     )
-
-    history = model.fit(
-        window.train,
-        epochs=epochs,
-        validation_data=window.val,
-        callbacks=[early_stopping],
-    )
+    if all_data:
+        history = model.fit(
+            window.all,
+            epochs=epochs,
+            callbacks=[early_stopping],
+        )
+    else:
+        history = model.fit(
+            window.train,
+            epochs=epochs,
+            validation_data=window.val,
+            callbacks=[early_stopping],
+        )
     return model, history
