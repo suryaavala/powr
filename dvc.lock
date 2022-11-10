@@ -26,16 +26,16 @@ stages:
       size: 13586309
       nfiles: 8
     - path: main.py
-      md5: f6142f9a5cf9ec735e3534fe37ec999a
-      size: 3417
+      md5: 39eca9ef3d09ecb11048f631d2a02a19
+      size: 3649
     - path: powr
-      md5: 18803c39c2ba668748b1792433071acf.dir
-      size: 30362
-      nfiles: 13
+      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
+      size: 41421
+      nfiles: 14
     outs:
     - path: data/clean/data.csv
-      md5: eb8ba10f23fe9a05f14d1bf580999a8c
-      size: 2742910
+      md5: 1a7a096c4789c90e3f56d8c58cc7ca74
+      size: 10314936
   preprocess-data:
     cmd: make preprocess-data
     deps:
@@ -56,47 +56,72 @@ stages:
   generate-dataset:
     cmd: make generate-dataset
     deps:
-    - path: data/preprocessed/data.csv
-      md5: 4db895341d35fc99a86c23e3f09311f5
-      size: 5841370
+    - path: data/clean/data.csv
+      md5: 1a7a096c4789c90e3f56d8c58cc7ca74
+      size: 10314936
     - path: main.py
-      md5: f6142f9a5cf9ec735e3534fe37ec999a
-      size: 3417
+      md5: 39eca9ef3d09ecb11048f631d2a02a19
+      size: 3649
     - path: powr
-      md5: 18803c39c2ba668748b1792433071acf.dir
-      size: 30362
-      nfiles: 13
+      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
+      size: 41421
+      nfiles: 14
     outs:
     - path: data/dataset/test.csv
-      md5: fee7d09f656002fa82bc87c11476c1b2
-      size: 677073
+      md5: 6a76e8f7341e7fed6986b173785599d6
+      size: 1074393
     - path: data/dataset/train.csv
-      md5: 4e41fe267a41d555a756a446dbbf355e
-      size: 4737703
+      md5: 3d3fb77c8f06df9e91ae1333d180a776
+      size: 7564069
     - path: data/dataset/val.csv
-      md5: f95a08de9b81505f13d3032370b84895
-      size: 1351226
+      md5: fa8f75e314645da899f3ba6639c6e8a1
+      size: 2163844
+    - path: models/scaler.pkl
+      md5: 7c512149ec2ff0520d5f03f726c56df3
+      size: 1359
   train-model:
     cmd: make train-model
     deps:
     - path: data/dataset/test.csv
-      md5: fee7d09f656002fa82bc87c11476c1b2
-      size: 677073
+      md5: 6a76e8f7341e7fed6986b173785599d6
+      size: 1074393
     - path: data/dataset/train.csv
-      md5: 4e41fe267a41d555a756a446dbbf355e
-      size: 4737703
+      md5: 3d3fb77c8f06df9e91ae1333d180a776
+      size: 7564069
     - path: data/dataset/val.csv
-      md5: f95a08de9b81505f13d3032370b84895
-      size: 1351226
+      md5: fa8f75e314645da899f3ba6639c6e8a1
+      size: 2163844
     - path: main.py
-      md5: f6142f9a5cf9ec735e3534fe37ec999a
-      size: 3417
+      md5: 39eca9ef3d09ecb11048f631d2a02a19
+      size: 3649
     - path: powr
-      md5: 18803c39c2ba668748b1792433071acf.dir
-      size: 30362
-      nfiles: 13
+      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
+      size: 41421
+      nfiles: 14
     outs:
     - path: models/linear_model
-      md5: d8ebf6b6465d76deed0891859cff448f.dir
-      size: 203461
+      md5: 65f28781719c1b15742c45d5c5472841.dir
+      size: 293435
       nfiles: 4
+  predict-powr:
+    cmd: make predict-powr
+    deps:
+    - path: data/dataset/
+      md5: 26729a730a42df183583be802ae90094.dir
+      size: 10802336
+      nfiles: 4
+    - path: main.py
+      md5: 39eca9ef3d09ecb11048f631d2a02a19
+      size: 3649
+    - path: models/linear_model
+      md5: 65f28781719c1b15742c45d5c5472841.dir
+      size: 293435
+      nfiles: 4
+    - path: powr
+      md5: 9a88b0e3ba0cc9d17f1c46bb798d301a.dir
+      size: 41421
+      nfiles: 14
+    outs:
+    - path: data/predictions/predictions.csv
+      md5: c1a06c8368a3951cbedf39bd76ce89b5
+      size: 20967

@@ -1,9 +1,11 @@
 """Module that contains data ops"""
-from pathlib import Path
+from pathlib import Path, PosixPath
 from typing import Dict, List
 
+import joblib
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
 from powr import utils
 
@@ -45,7 +47,8 @@ def clean_df(
        - drops duplicate rows
        - drops rows with negative power consumption values
        - sorts dataframe by datetime
-       - resets index
+       - removes date time duplicates by mean imputation
+       - time series resampling to 5min frequency by summing values in bins
 
     Args:
         raw_dataframe (pd.DataFrame): raw dataframe
@@ -75,15 +78,21 @@ def clean_df(
     cols_to_drop = nunique[nunique == 1].index
     df.drop(cols_to_drop, axis=1, inplace=True)
 
+    # sorting values by datetime
     df.sort_values(by=["CREATED_AT"], inplace=True, ignore_index=True)
     df.reset_index(drop=True, inplace=True)
+
+    # remove date time duplicates by mean imputation
+    df = df.groupby("CREATED_AT").mean(numeric_only=True)
+
+    # time series resampling to 5min frequency by summing values in bins
+    df = df.resample("5min").sum()
+
     return df
 
 
 def preprocess_df(cleaned_df: pd.DataFrame) -> pd.DataFrame:
     """Preprocess data
-        - removes date time duplicates by mean imputation
-        - time series resampling to 5min frequency by summing values in bins
         - modelling time as hourly, daily cyclical variables in the form of sin & cos
 
 
@@ -96,53 +105,64 @@ def preprocess_df(cleaned_df: pd.DataFrame) -> pd.DataFrame:
 
     df = cleaned_df.copy(deep=True)
 
-    # remove date time duplicates by mean imputation
-    df = df.groupby("CREATED_AT").mean(numeric_only=True)
+    # modelling time as hourly, daily, monthly cyclical variables in the form of sin & cos
+    ts = df.index.astype(np.int64) // 10**9
+    df["day_sin"] = np.sin(ts * (2 * np.pi / 86400))
+    df["day_cos"] = np.cos(ts * (2 * np.pi / 86400))
+    df["hour_sin"] = np.sin(ts * (2 * np.pi / 3600))
+    df["hour_cos"] = np.cos(ts * (2 * np.pi / 3600))
+    df["month_sin"] = np.sin(ts * (2 * np.pi / 2.628e6))
+    df["month_cos"] = np.cos(ts * (2 * np.pi / 2.628e6))
 
-    # time series resampling to 5min frequency by summing values in bins
-    df = df.resample("5min").sum()
-    df.reset_index(inplace=True)
-
-    # modelling time as daily, hourly sin & cos waves
-    date_time = df.pop("CREATED_AT")
-    timestamp_s = date_time.map(pd.Timestamp.timestamp)
-    day = 24 * 60 * 60
-    hour = 60 * 60
-
-    df["Day sin"] = np.sin(timestamp_s * (2 * np.pi / day))
-    df["Day cos"] = np.cos(timestamp_s * (2 * np.pi / day))
-    df["Hour sin"] = np.sin(timestamp_s * (2 * np.pi / hour))
-    df["Hour cos"] = np.cos(timestamp_s * (2 * np.pi / hour))
+    # NOTE moving averages might not be available during prediction time, so ommitting them as a cautionary measure
+    # calculating rolling averages of power consumption
+    # df["MA30"] = df["VALUE"].rolling(window=30).mean()
+    # df["MA15"] = df["VALUE"].rolling(window=15).mean()
+    # df[["MA15", "MA30"]] = df[["MA15", "MA30"]].fillna(0, inplace=False)
 
     return df
 
 
-def generate_dataset(preprocessed_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+def generate_dataset(
+    cleaned_df: pd.DataFrame,
+    train_min_max_scaler_path: PosixPath,
+) -> Dict[str, pd.DataFrame]:
     """Generate dataset
         - splits data into train, val & test sets
         - normalises data
 
     Args:
-        preprocessed_df (pd.DataFrame): preprocessed dataframe
+        cleaned_df (pd.DataFrame): preprocessed dataframe
+        train_min_max_scaler_path (PosixPath): path to load from or save train min max scaler
+                                    will check if the path exists then loads it otherwise creates one and saves it
 
     Returns:
         Dict[str, pd.DataFrame]: dictionary of train, val & test sets
     """
 
-    df = preprocessed_df.copy(deep=True)
+    df = cleaned_df.copy(deep=True)
 
     # split data into train, val & test sets
     ds = utils.split_dataset_df(df)
-    train_df = ds["train"]
-    val_df = ds["val"]
-    test_df = ds["test"]
+
+    # Load or create a scaler
+    if train_min_max_scaler_path.exists():
+        scaler = joblib.load(train_min_max_scaler_path)
+    else:
+        scaler = MinMaxScaler(feature_range=(-1, 1))
+        # scaler.fit(df)
+        # joblib.dump(scaler, train_min_max_scaler_path)
 
     # normalise data
-    train_mean = train_df.mean()
-    train_std = train_df.std()
+    for ds_type in ds:
+        # fits only on training data
+        if ds_type == "train":
+            scaled = utils.scale_features(ds[ds_type], scaler=scaler, fit=True)
+        else:
+            scaled = utils.scale_features(ds[ds_type], scaler=scaler, fit=False)
+        scaler = scaled["scaler"]
+        ds[ds_type] = scaled["df"]
 
-    train_df = (train_df - train_mean) / train_std
-    val_df = (val_df - train_mean) / train_std
-    test_df = (test_df - train_mean) / train_std
-
-    return {"train": train_df, "val": val_df, "test": test_df}
+    # saves scaler back to disk
+    joblib.dump(scaler, train_min_max_scaler_path)
+    return ds

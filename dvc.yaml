@@ -8,25 +8,17 @@ stages:
     outs:
       - data/clean/data.csv
 
-  preprocess-data:
-    cmd: make preprocess-data
-    deps:
-      - powr
-      - main.py
-      - data/clean/data.csv
-    outs:
-      - data/preprocessed/data.csv
-
   generate-dataset:
     cmd: make generate-dataset
     deps:
       - powr
       - main.py
-      - data/preprocessed/data.csv
+      - data/clean/data.csv
     outs:
       - data/dataset/train.csv
       - data/dataset/test.csv
       - data/dataset/val.csv
+      - models/scaler.pkl
 
   train-model:
     cmd: make train-model
@@ -38,3 +30,13 @@ stages:
       - data/dataset/val.csv
     outs:
       - models/linear_model
+
+  predict-powr:
+    cmd: make predict-powr
+    deps:
+      - powr
+      - main.py
+      - models/linear_model
+      - data/dataset/
+    outs:
+      - data/predictions/predictions.csv
